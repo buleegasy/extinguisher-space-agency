@@ -31,6 +31,8 @@ const HALF_WORLD = WORLD_SIZE * 0.5;
 const WALL_HEIGHT = 6;
 const WALL_THICKNESS = 1;
 const IMPACT_THRESHOLD = 9.5;
+const THRUST_UP_FORCE = 240;
+const THRUST_FORWARD_FORCE = 260;
 const clock = new THREE.Clock();
 
 document.body.style.margin = '0';
@@ -357,16 +359,18 @@ makeWaterCooler(10.2, -7.6);
 makeWaterCooler(1.8, 8.5);
 
 const chairBody = new CANNON.Body({
-  mass: 10,
+  mass: 14,
   material: chairMaterial,
   position: new CANNON.Vec3(0, 2.2, -11.5),
-  linearDamping: 0.26,
-  angularDamping: 0.33,
+  linearDamping: 0.3,
+  angularDamping: 0.58,
 }) as TaggedBody;
 chairBody.userData = { type: 'chair' };
 chairBody.addShape(new CANNON.Box(new CANNON.Vec3(1, 0.18, 0.95)), new CANNON.Vec3(0, 0.24, 0));
 chairBody.addShape(new CANNON.Box(new CANNON.Vec3(0.95, 0.12, 0.95)), new CANNON.Vec3(0, -0.2, 0));
 chairBody.addShape(new CANNON.Box(new CANNON.Vec3(0.95, 0.9, 0.16)), new CANNON.Vec3(0, 0.92, -0.82));
+// Hidden ballast keeps the chair from faceplanting before the player even touches the thrusters.
+chairBody.addShape(new CANNON.Box(new CANNON.Vec3(0.72, 0.18, 0.72)), new CANNON.Vec3(0, -0.98, 0));
 
 const chairVisual = new THREE.Group();
 const seat = new THREE.Mesh(new THREE.BoxGeometry(2, 0.35, 1.9), crudePalette.red);
@@ -495,16 +499,21 @@ const rightLegConstraint = new CANNON.PointToPointConstraint(
   new CANNON.Vec3(0, 0.65, 0),
   24,
 );
+buttConstraint.collideConnected = false;
+leftArmConstraint.collideConnected = false;
+rightArmConstraint.collideConnected = false;
+leftLegConstraint.collideConnected = false;
+rightLegConstraint.collideConnected = false;
 world.addConstraint(buttConstraint);
 world.addConstraint(leftArmConstraint);
 world.addConstraint(rightArmConstraint);
 world.addConstraint(leftLegConstraint);
 world.addConstraint(rightLegConstraint);
 
-const leftThrusterForce = new CANNON.Vec3(0, 150, 150);
-const rightThrusterForce = new CANNON.Vec3(0, 150, 150);
-const leftThrusterPoint = new CANNON.Vec3(-1, 0.4, 0.15);
-const rightThrusterPoint = new CANNON.Vec3(1, 0.4, 0.15);
+const leftThrusterForce = new CANNON.Vec3(0, THRUST_UP_FORCE, THRUST_FORWARD_FORCE);
+const rightThrusterForce = new CANNON.Vec3(0, THRUST_UP_FORCE, THRUST_FORWARD_FORCE);
+const leftThrusterPoint = new CANNON.Vec3(-0.96, 0.28, 0.2);
+const rightThrusterPoint = new CANNON.Vec3(0.96, 0.28, 0.2);
 
 function emitSmoke(localX: number, now: number) {
   const lastTime = localX < 0 ? lastLeftSmoke : lastRightSmoke;
