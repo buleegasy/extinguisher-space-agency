@@ -26,8 +26,10 @@ type CollisionEvent = {
 };
 
 const FIXED_TIME_STEP = 1 / 60;
-const WORLD_SIZE = 30;
-const HALF_WORLD = WORLD_SIZE * 0.5;
+const WORLD_WIDTH = 38;
+const WORLD_LENGTH = 136;
+const HALF_WORLD_WIDTH = WORLD_WIDTH * 0.5;
+const HALF_WORLD_LENGTH = WORLD_LENGTH * 0.5;
 const WALL_HEIGHT = 6;
 const WALL_THICKNESS = 1;
 const IMPACT_THRESHOLD = 9.5;
@@ -310,7 +312,7 @@ function makeWaterCooler(x: number, z: number) {
   });
 }
 
-const floor = new THREE.Mesh(new THREE.BoxGeometry(WORLD_SIZE, 1, WORLD_SIZE), crudePalette.gray);
+const floor = new THREE.Mesh(new THREE.BoxGeometry(WORLD_WIDTH, 1, WORLD_LENGTH), crudePalette.gray);
 floor.position.set(0, -0.5, 0);
 floor.receiveShadow = true;
 scene.add(floor);
@@ -318,19 +320,19 @@ scene.add(floor);
 const floorBody = new CANNON.Body({
   mass: 0,
   material: floorMaterial,
-  shape: new CANNON.Box(new CANNON.Vec3(WORLD_SIZE / 2, 0.5, WORLD_SIZE / 2)),
+  shape: new CANNON.Box(new CANNON.Vec3(WORLD_WIDTH / 2, 0.5, WORLD_LENGTH / 2)),
   position: new CANNON.Vec3(0, -0.5, 0),
 }) as TaggedBody;
 floorBody.userData = { type: 'floor' };
 world.addBody(floorBody);
 
-makeStaticBox(WORLD_SIZE, WALL_HEIGHT, WALL_THICKNESS, new THREE.Vector3(0, WALL_HEIGHT / 2 - 0.5, HALF_WORLD), crudePalette.wall, 'wall');
-makeStaticBox(WORLD_SIZE, WALL_HEIGHT, WALL_THICKNESS, new THREE.Vector3(0, WALL_HEIGHT / 2 - 0.5, -HALF_WORLD), crudePalette.wall, 'wall');
-makeStaticBox(WALL_THICKNESS, WALL_HEIGHT, WORLD_SIZE, new THREE.Vector3(HALF_WORLD, WALL_HEIGHT / 2 - 0.5, 0), crudePalette.wall, 'wall');
-makeStaticBox(WALL_THICKNESS, WALL_HEIGHT, WORLD_SIZE, new THREE.Vector3(-HALF_WORLD, WALL_HEIGHT / 2 - 0.5, 0), crudePalette.wall, 'wall');
+makeStaticBox(WORLD_WIDTH, WALL_HEIGHT, WALL_THICKNESS, new THREE.Vector3(0, WALL_HEIGHT / 2 - 0.5, HALF_WORLD_LENGTH), crudePalette.wall, 'wall');
+makeStaticBox(WORLD_WIDTH, WALL_HEIGHT, WALL_THICKNESS, new THREE.Vector3(0, WALL_HEIGHT / 2 - 0.5, -HALF_WORLD_LENGTH), crudePalette.wall, 'wall');
+makeStaticBox(WALL_THICKNESS, WALL_HEIGHT, WORLD_LENGTH, new THREE.Vector3(HALF_WORLD_WIDTH, WALL_HEIGHT / 2 - 0.5, 0), crudePalette.wall, 'wall');
+makeStaticBox(WALL_THICKNESS, WALL_HEIGHT, WORLD_LENGTH, new THREE.Vector3(-HALF_WORLD_WIDTH, WALL_HEIGHT / 2 - 0.5, 0), crudePalette.wall, 'wall');
 
 const bossDoor = new THREE.Mesh(new THREE.BoxGeometry(4.2, 4.8, 0.45), crudePalette.boss);
-bossDoor.position.set(0, 1.9, HALF_WORLD - 1.25);
+bossDoor.position.set(0, 1.9, HALF_WORLD_LENGTH - 1.25);
 bossDoor.castShadow = true;
 bossDoor.receiveShadow = true;
 scene.add(bossDoor);
@@ -339,29 +341,46 @@ const bossDoorBody = new CANNON.Body({
   mass: 0,
   material: obstacleMaterial,
   shape: new CANNON.Box(new CANNON.Vec3(2.1, 2.4, 0.23)),
-  position: new CANNON.Vec3(0, 1.9, HALF_WORLD - 1.25),
+  position: new CANNON.Vec3(0, 1.9, HALF_WORLD_LENGTH - 1.25),
 }) as TaggedBody;
 bossDoorBody.userData = { type: 'boss-door' };
 world.addBody(bossDoorBody);
 
 const obstacleSeeds = [
-  { x: -7.5, z: -5.5, rot: 0.3 },
-  { x: 6.5, z: -2.6, rot: -0.35 },
-  { x: -4.5, z: 5.1, rot: -0.1 },
-  { x: 8.3, z: 7.2, rot: 0.55 },
+  { x: -9.8, z: -49.5, rot: 0.18 },
+  { x: 8.4, z: -45.8, rot: -0.42 },
+  { x: -3.8, z: -38.6, rot: 0.1 },
+  { x: 11.5, z: -33.3, rot: 0.52 },
+  { x: -10.6, z: -24.5, rot: -0.16 },
+  { x: 6.8, z: -18.2, rot: 0.34 },
+  { x: -2.2, z: -9.4, rot: -0.46 },
+  { x: 10.8, z: -2.5, rot: 0.12 },
+  { x: -8.4, z: 8.8, rot: 0.56 },
+  { x: 4.4, z: 16.6, rot: -0.2 },
+  { x: -12.2, z: 26.8, rot: 0.28 },
+  { x: 7.3, z: 34.2, rot: -0.38 },
+  { x: -1.6, z: 44.7, rot: 0.14 },
+  { x: 12.1, z: 53.6, rot: 0.49 },
+  { x: -9.5, z: 60.8, rot: -0.22 },
 ];
 for (const desk of obstacleSeeds) {
   makeDesk(desk.x, desk.z, desk.rot);
 }
 
-makeWaterCooler(-10.5, 3.2);
-makeWaterCooler(10.2, -7.6);
-makeWaterCooler(1.8, 8.5);
+makeWaterCooler(-13.5, -54.5);
+makeWaterCooler(12.4, -40.8);
+makeWaterCooler(0.5, -26.4);
+makeWaterCooler(-11.8, -12.5);
+makeWaterCooler(13.2, 2.8);
+makeWaterCooler(-3.2, 18.5);
+makeWaterCooler(11.6, 38.2);
+makeWaterCooler(-12.4, 49.6);
+makeWaterCooler(2.8, 62.5);
 
 const chairBody = new CANNON.Body({
   mass: 14,
   material: chairMaterial,
-  position: new CANNON.Vec3(0, 2.2, -11.5),
+  position: new CANNON.Vec3(0, 2.2, -HALF_WORLD_LENGTH + 7.5),
   linearDamping: 0.3,
   angularDamping: 0.58,
 }) as TaggedBody;
@@ -450,11 +469,12 @@ function makeAstronautPart(
   return body;
 }
 
-const buttBody = makeAstronautPart(new THREE.Vector3(0.7, 0.8, 0.5), new THREE.Vector3(0, 3, -11.45), crudePalette.white, 1.6);
-const leftArmBody = makeAstronautPart(new THREE.Vector3(0.26, 1.2, 0.26), new THREE.Vector3(-0.82, 3.15, -11.3), crudePalette.white, 0.55);
-const rightArmBody = makeAstronautPart(new THREE.Vector3(0.26, 1.2, 0.26), new THREE.Vector3(0.82, 3.15, -11.3), crudePalette.white, 0.55);
-const leftLegBody = makeAstronautPart(new THREE.Vector3(0.3, 1.4, 0.3), new THREE.Vector3(-0.36, 2.05, -11.1), crudePalette.white, 0.6);
-const rightLegBody = makeAstronautPart(new THREE.Vector3(0.3, 1.4, 0.3), new THREE.Vector3(0.36, 2.05, -11.1), crudePalette.white, 0.6);
+const spawnZ = -HALF_WORLD_LENGTH + 7.55;
+const buttBody = makeAstronautPart(new THREE.Vector3(0.7, 0.8, 0.5), new THREE.Vector3(0, 3, spawnZ + 0.05), crudePalette.white, 1.6);
+const leftArmBody = makeAstronautPart(new THREE.Vector3(0.26, 1.2, 0.26), new THREE.Vector3(-0.82, 3.15, spawnZ + 0.2), crudePalette.white, 0.55);
+const rightArmBody = makeAstronautPart(new THREE.Vector3(0.26, 1.2, 0.26), new THREE.Vector3(0.82, 3.15, spawnZ + 0.2), crudePalette.white, 0.55);
+const leftLegBody = makeAstronautPart(new THREE.Vector3(0.3, 1.4, 0.3), new THREE.Vector3(-0.36, 2.05, spawnZ + 0.4), crudePalette.white, 0.6);
+const rightLegBody = makeAstronautPart(new THREE.Vector3(0.3, 1.4, 0.3), new THREE.Vector3(0.36, 2.05, spawnZ + 0.4), crudePalette.white, 0.6);
 
 for (const body of astronautBodies) {
   body.angularVelocity.set((Math.random() - 0.5) * 5, (Math.random() - 0.5) * 5, (Math.random() - 0.5) * 5);
